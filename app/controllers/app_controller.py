@@ -1,4 +1,5 @@
 from app.models.thread import Thread
+from app.schemas.message import MessageModel
 from app.schemas.thread import Thread
 from app.schemas.create_chat import ChatCreateRequest
 from app.repository.thread_repository import ThreadRepository
@@ -13,15 +14,6 @@ import os
 load_dotenv()
 
 MATH_ASSISTANT_ID = os.environ.get("OPENAI_ASSISTANT_ID")
-
-
-class MessageModel(BaseModel):
-    role: str
-    text: str
-
-
-def read_example(db, example_id):
-    return "app Controller"
 
 
 def get_chat_messages(db, data: Thread):

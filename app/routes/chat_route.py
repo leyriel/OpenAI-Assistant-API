@@ -19,11 +19,6 @@ def get_db():
         db.close()
 
 
-@router.get("/example/{example_id}")
-def example_route(example_id: int, db: Session = Depends(get_db)):
-    return read_example(db, example_id)
-
-
 @router.get("/{thread_id}")
 def get_chat_route(thread_id: str, db: Session = Depends(get_db)):
     data = Thread(id=thread_id)

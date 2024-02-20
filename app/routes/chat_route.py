@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from app.config.db import SessionLocal
-from app.controllers.app_controller import read_example, continue_chat, get_chat_messages
+from app.controllers.app_controller import continue_chat, get_chat_messages
 from app.controllers.app_controller import create_chat
 from app.schemas.thread import Thread
 from app.schemas.create_chat import ChatCreateRequest

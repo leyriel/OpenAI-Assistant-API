@@ -34,6 +34,12 @@ To apply the latest migration to your database, use:
 `alembic upgrade head`
 
 ### Start Application
+Create a venv env directory
+`python -m venv <env_name>`
+
+Run your development env
+`.\<env_name>\Scripts\activate`
+
 To start the application, execute:
 `uvicorn app.main:app --reload`
 

@@ -5,7 +5,9 @@ from dotenv import load_dotenv
 import os
 from app.repository.thread_repository import ThreadRepository
 from app.services.functions.quizz.quizz import display_quiz
-from app.services.functions.quizz.quizz_interface import function_json
+from app.services.functions.quizz.quizz_description import function_json
+from app.services.functions.register_user.register_user import register_user
+from app.services.functions.register_user.register_user_description import register_user_function
 
 load_dotenv()
 
@@ -26,6 +28,7 @@ assistant = client.beta.assistants.update(
         {"type": "code_interpreter"},
         {"type": "retrieval"},
         {"type": "function", "function": function_json},
+        {"type": "function", "function": register_user_function},
     ],
 )
 
@@ -60,24 +63,47 @@ def wait_on_run(run, thread):
             run_id=run.id,
         )
         time.sleep(0.5)
+
         if run.status == "requires_action":
             print('requires_action statement')
             tool_call = run.required_action.submit_tool_outputs.tool_calls[0]
             arguments = json.loads(tool_call.function.arguments)
             name = tool_call.function.name
-            responses = display_quiz(arguments["title"], arguments["questions"])
 
-            print("Function Name:", name)
-            print("Function Arguments:", arguments)
+            if name == "display_quiz":
+                responses = display_quiz(arguments["title"], arguments["questions"])
+                print("Function Name:", name)
+                print("Function Arguments:", arguments)
 
-            run = client.beta.threads.runs.submit_tool_outputs(
-                thread_id=thread.id,
-                run_id=run.id,
-                tool_outputs=[
-                    {
-                        "tool_call_id": tool_call.id,
-                        "output": json.dumps(responses),
-                    }
-                ],
-            )
+                run = client.beta.threads.runs.submit_tool_outputs(
+                    thread_id=thread.id,
+                    run_id=run.id,
+                    tool_outputs=[
+                        {
+                            "tool_call_id": tool_call.id,
+                            "output": json.dumps(responses),
+                        }
+                    ],
+                )
+
+            if name == 'register_user':
+                arguments = json.loads(tool_call.function.arguments)
+                print('je passe dans register user')
+                print("Function Arguments:", arguments)
+                responses = register_user(
+                    username=arguments['username'],
+                    email=arguments['email'],
+                    password=arguments['password']
+                )
+                run = client.beta.threads.runs.submit_tool_outputs(
+                    thread_id=thread.id,
+                    run_id=run.id,
+                    tool_outputs=[
+                        {
+                            "tool_call_id": tool_call.id,
+                            "output": json.dumps(responses),
+                        }
+                    ],
+                )
+
     return run

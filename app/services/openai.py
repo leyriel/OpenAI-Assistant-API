@@ -6,6 +6,8 @@ import os
 from app.repository.thread_repository import ThreadRepository
 from app.services.functions.authenticate_user.authenticate_user import authenticate_user
 from app.services.functions.authenticate_user.authentificate_user_description import authenticate_user_function
+from app.services.functions.create_workout.create_workout import create_workout
+from app.services.functions.create_workout.create_workout_description import create_workout_function
 from app.services.functions.get_exercises.get_exercises import get_exercises
 from app.services.functions.get_exercises.get_exercises_description import get_exercises_function
 from app.services.functions.quizz.quizz import display_quiz
@@ -35,6 +37,7 @@ assistant = client.beta.assistants.update(
         {"type": "function", "function": register_user_function},
         {"type": "function", "function": get_exercises_function},
         {"type": "function", "function": authenticate_user_function},
+        {"type": "function", "function": create_workout_function},
     ],
 )
 
@@ -132,6 +135,27 @@ def wait_on_run(run, thread):
                     identifier=arguments['identifier'],
                     password=arguments['password']
                 )
+
+                run = client.beta.threads.runs.submit_tool_outputs(
+                    thread_id=thread.id,
+                    run_id=run.id,
+                    tool_outputs=[
+                        {
+                            "tool_call_id": tool_call.id,
+                            "output": json.dumps(responses),
+                        }
+                    ],
+                )
+
+            if name == 'create_workout':
+                arguments = json.loads(tool_call.function.arguments)
+                responses = create_workout(
+                    exercise=arguments['exercise'],
+                    rep=arguments['rep'],
+                    date=arguments['date'],
+                    weight=arguments['weight'],
+                    user_id=arguments['users_permissions_user'],
+                    token=arguments['token'])
 
                 run = client.beta.threads.runs.submit_tool_outputs(
                     thread_id=thread.id,

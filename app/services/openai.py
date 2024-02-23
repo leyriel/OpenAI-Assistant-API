@@ -10,6 +10,8 @@ from app.services.functions.create_workout.create_workout import create_workout
 from app.services.functions.create_workout.create_workout_description import create_workout_function
 from app.services.functions.get_exercises.get_exercises import get_exercises
 from app.services.functions.get_exercises.get_exercises_description import get_exercises_function
+from app.services.functions.get_workouts.get_workouts import get_workouts
+from app.services.functions.get_workouts.get_workouts_description import get_workouts_function
 from app.services.functions.quizz.quizz import display_quiz
 from app.services.functions.quizz.quizz_description import function_json
 from app.services.functions.register_user.register_user import register_user
@@ -38,6 +40,7 @@ assistant = client.beta.assistants.update(
         {"type": "function", "function": get_exercises_function},
         {"type": "function", "function": authenticate_user_function},
         {"type": "function", "function": create_workout_function},
+        {"type": "function", "function": get_workouts_function},
     ],
 )
 
@@ -129,7 +132,26 @@ def wait_on_run(run, thread):
                     ],
                 )
 
+            if name == 'get_workouts':
+                arguments = json.loads(tool_call.function.arguments)
+                responses = get_workouts(token=arguments['token'], user_id=arguments['user_id'])
+
+                print(responses)
+                print(arguments['token'])
+
+                run = client.beta.threads.runs.submit_tool_outputs(
+                    thread_id=thread.id,
+                    run_id=run.id,
+                    tool_outputs=[
+                        {
+                            "tool_call_id": tool_call.id,
+                            "output": json.dumps(responses),
+                        }
+                    ],
+                )
+
             if name == 'authenticate_user':
+                print('authenticate_user')
                 arguments = json.loads(tool_call.function.arguments)
                 responses = authenticate_user(
                     identifier=arguments['identifier'],

@@ -10,6 +10,8 @@ from app.services.functions.create_workout.create_workout import create_workout
 from app.services.functions.create_workout.create_workout_description import create_workout_function
 from app.services.functions.get_exercises.get_exercises import get_exercises
 from app.services.functions.get_exercises.get_exercises_description import get_exercises_function
+from app.services.functions.get_user_info.get_user_info import get_user_info
+from app.services.functions.get_user_info.get_user_info_description import get_user_infos_function
 from app.services.functions.get_workouts.get_workouts import get_workouts
 from app.services.functions.get_workouts.get_workouts_description import get_workouts_function
 from app.services.functions.quizz.quizz import display_quiz
@@ -41,6 +43,7 @@ assistant = client.beta.assistants.update(
         {"type": "function", "function": authenticate_user_function},
         {"type": "function", "function": create_workout_function},
         {"type": "function", "function": get_workouts_function},
+        {"type": "function", "function": get_user_infos_function},
     ],
 )
 
@@ -178,6 +181,22 @@ def wait_on_run(run, thread):
                     weight=arguments['weight'],
                     user_id=arguments['users_permissions_user'],
                     token=arguments['token'])
+
+                run = client.beta.threads.runs.submit_tool_outputs(
+                    thread_id=thread.id,
+                    run_id=run.id,
+                    tool_outputs=[
+                        {
+                            "tool_call_id": tool_call.id,
+                            "output": json.dumps(responses),
+                        }
+                    ],
+                )
+
+            if name == 'get_user_info':
+                print('je passe dans get_user_info')
+                arguments = json.loads(tool_call.function.arguments)
+                responses = get_user_info(arguments['token'])
 
                 run = client.beta.threads.runs.submit_tool_outputs(
                     thread_id=thread.id,

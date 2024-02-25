@@ -10,10 +10,6 @@ get_workouts_function = {
                 "type": "string",
                 "description": "Token d'autorisation Bearer pour accéder à l'API"
             },
-            "user_id": {
-                "type": "integer",
-                "description": "Identifiant de l'utilisateur pour lequel les workouts doivent être récupérés"
-            }
         },
         "required": ["token", "user_id"]
     }

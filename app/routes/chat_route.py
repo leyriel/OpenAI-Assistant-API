@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from app.config.db import SessionLocal
-from app.controllers.app_controller import continue_chat, get_chat_messages
+from app.controllers.app_controller import continue_chat, get_chat_messages, create_thread
 from app.controllers.app_controller import create_chat
 from app.schemas.thread import Thread
 from app.schemas.create_chat import ChatCreateRequest
@@ -33,3 +33,8 @@ def create_chat_route(request_data: ContinueChat, db: Session = Depends(get_db))
 @router.post("/create")
 def create_chat_route(request_data: ChatCreateRequest, db: Session = Depends(get_db)):
     return create_chat(db, request_data)
+
+
+@router.post("/create/thread")
+def create_chat_route(db: Session = Depends(get_db)):
+    return create_thread(db)

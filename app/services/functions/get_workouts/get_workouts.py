@@ -10,7 +10,8 @@ def get_workouts(token):
     raw_content = response.text
     user = json.loads(raw_content)
 
-    url = f"http://localhost:1337/api/workouts?filters[users_permissions_user][id][$eq]={user['id']}&populate=exercise"
+    url = (f"http://localhost:1337/api/workouts?filters[users_permissions_user][id][$eq]={user['id']}&pagination["
+           f"page]=1&pagination[pageSize]=10000")
     headers = {
         "Authorization": f"Bearer {token}"
     }

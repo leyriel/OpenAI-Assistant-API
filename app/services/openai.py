@@ -68,6 +68,14 @@ def create_thread_and_run(user_input, thread=None):
     return thread, run
 
 
+def create_thread_without_run():
+    thread = client.beta.threads.create()
+    with ThreadRepository() as repo:
+        repo.create_thread(identifier=thread.id)
+
+    return thread.id
+
+
 def wait_on_run(run, thread):
     while run.status == "queued" or run.status == "in_progress":
         run = client.beta.threads.runs.retrieve(
